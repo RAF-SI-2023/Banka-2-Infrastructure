@@ -17,8 +17,6 @@ COPY . .
 RUN npm run build --prod
 
 # Stage 2: Serve app with nginx server
-
-# Use official nginx image as the base image
 FROM nginx:latest
 
 # Remove default nginx website
@@ -27,8 +25,11 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy the build output from the 'build' stage to replace the default nginx contents.
 COPY --from=build /usr/src/app/dist/* /usr/share/nginx/html
 
-# Expose port 4200
-EXPOSE 4200
+# Copy custom Nginx config into container
+COPY ../../Banka-2-Frontend/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port 80
+EXPOSE 80
 
 # Start nginx server
 CMD ["nginx", "-g", "daemon off;"]

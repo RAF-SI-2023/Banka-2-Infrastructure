@@ -7,7 +7,7 @@ services:
       POSTGRES_DB: bank-db
       POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
-      - ./init-db:/docker-entrypoint-initdb.d
+      - ../Banka-2-Backend/init-db:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     healthcheck:
@@ -40,7 +40,7 @@ services:
       - "15672:15672"
       - "5672:5672"
     volumes:
-      - "./rabbitdata:/var/lib/rabbitmq"
+      - "../Banka-2-Backend/rabbitdata:/var/lib/rabbitmq"
     healthcheck:
       test: [ "CMD", "rabbitmqctl", "status" ]
       interval: 5s
@@ -130,10 +130,11 @@ services:
 
   angular-cli:
     build:
-      context: ${FRONTEND_REPO_ABSOLUTE_PATH}/
-      dockerfile: ${INFRA_REPO_ABSOLUTE_PATH}/images/Frontend.Dockerfile
+      context: ${FRONTEND_ABSOLUTE_PATH}/
+      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/Frontend.Dockerfile
+    container_name: angular-cli
     ports:
-      - "4200:4200"
+      - "80:80"
     depends_on:
       bank-service:
         condition: service_started
