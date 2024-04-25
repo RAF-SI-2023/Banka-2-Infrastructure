@@ -2,25 +2,25 @@ version: '3.8'
 services:
   postgres-db:
     image: postgres
-    container_name: bank-db
+    container_name: bank_db
     environment:
-      POSTGRES_DB: bank-db
+      POSTGRES_DB: bank_db
       POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - ../Banka-2-Backend/init-db:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d bank-db" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d bank_db" ]
       interval: 30s
       timeout: 10s
       retries: 5
 
-  stock-redis:
+  redis:
     image: redis
     expose:
       - "6379"
-    container_name: stock-redis
+    container_name: redis
     environment:
       REDIS_HOST_AUTH_METHOD: trust
       ALLOW_EMPTY_PASSWORD: "yes"
@@ -55,7 +55,8 @@ services:
     ports:
       - "8003:8003"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bank-db?currentSchema=bank_service_schema
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bank_db?currentSchema=bank_service_schema
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
       postgres-db:
@@ -71,8 +72,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bank-db?currentSchema=iam_service_schema
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bank_db?currentSchema=iam_service_schema
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
       postgres-db:
         condition: service_healthy
@@ -87,8 +89,9 @@ services:
     ports:
       - "8002:8002"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bank-db?currentSchema=notification_service_schema
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bank_db?currentSchema=notification_service_schema
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on: #conditions for service to start, its a black magic dont touch unless u know what u are doing!
       rabbitmq:
         condition: service_healthy
@@ -101,15 +104,16 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bank-db?currentSchema=stock_service_schema
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
-      - SPRING_REDIS_HOST=stock-redis
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bank_db?currentSchema=stock_service_schema
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_REDIS_HOST=redis
     depends_on:
       postgres-db:
         condition: service_healthy
       rabbitmq:
         condition: service_started
-      stock-redis:
+      redis:
         condition: service_started
 
   otc-service:
@@ -120,13 +124,15 @@ services:
     ports:
       - "8004:8004"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bank-db?currentSchema=otc_service_schema
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bank_db?currentSchema=otc_service_schema
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
       postgres-db:
         condition: service_healthy
       rabbitmq:
         condition: service_started
+
 
   angular-cli:
     build:
