@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-init
+  namespace: banka-2-dev
+data:
+  init.sql: |
+    \c bank_db
+
+    CREATE SCHEMA IF NOT EXISTS iam_service_schema AUTHORIZATION admin;
+    CREATE SCHEMA IF NOT EXISTS otc_service_schema AUTHORIZATION admin;
+    CREATE SCHEMA IF NOT EXISTS bank_service_schema AUTHORIZATION admin;
+    CREATE SCHEMA IF NOT EXISTS stock_service_schema AUTHORIZATION admin;
+    CREATE SCHEMA IF NOT EXISTS notification_service_schema AUTHORIZATION admin;
+
+---
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+metadata:
+  name: banka-2
+  namespace: banka-2-dev
+spec:
+  image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-16.2-0
+  postgresVersion: 16
+  databaseInitSQL:
+    name: database-init
+    key: init.sql
+  instances:
+    - name: instance1
+      replicas: 3
+      dataVolumeClaimSpec:
+        accessModes:
+        - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 10Gi
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  postgres-operator.crunchydata.com/cluster: banka-3
+                  postgres-operator.crunchydata.com/instance-set: instance1
+  backups:
+    pgbackrest:
+      image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest:ubi8-2.49-0
+      repos:
+      - name: repo1
+        volume:
+          volumeClaimSpec:
+            accessModes:
+            - "ReadWriteOnce"
+            resources:
+              requests:
+                storage: 10Gi
+  proxy:
+    pgBouncer:
+      replicas: 2
+      image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbouncer:ubi8-1.21-3
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+  users:
+    - name: admin
+      password:
+        type: "AlphaNumeric"
+      databases:
+        - bank_db
+      options: "SUPERUSER"
