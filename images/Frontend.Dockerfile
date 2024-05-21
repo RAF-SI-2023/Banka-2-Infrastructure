@@ -30,7 +30,7 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /usr/src/app/dist/* /usr/share/nginx/html
 
 # Copy custom Nginx config into container
-COPY ../../Banka-2-Frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
