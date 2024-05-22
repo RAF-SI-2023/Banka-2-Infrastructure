@@ -33,5 +33,5 @@ FROM openjdk:17
 
 COPY --from=builder /usr/app/target/*.jar /app.jar
 
-EXPOSE 8002
+EXPOSE 8000
 ENTRYPOINT ["java", "-jar", "/app.jar"]

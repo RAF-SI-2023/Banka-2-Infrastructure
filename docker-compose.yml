@@ -49,8 +49,8 @@ services:
 
   bank-service:
     build:
-      context: ${BACKEND_ABSOLUTE_PATH}/BankService
-      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/BankService.Dockerfile
+      context: ${BACKEND_ABSOLUTE_PATH}/bank-service
+      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/bank-service.Dockerfile
     container_name: bank-service
     ports:
       - "8003:8003"
@@ -65,8 +65,8 @@ services:
 
   iam-service:
     build:
-      context: ${BACKEND_ABSOLUTE_PATH}/IAMService
-      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/IAMService.Dockerfile
+      context: ${BACKEND_ABSOLUTE_PATH}/iam-service
+      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/iam-service.Dockerfile
     container_name: iam-service
     ports:
       - "8000:8000"
@@ -81,22 +81,22 @@ services:
 
   notification-service:
     build:
-      context: ${BACKEND_ABSOLUTE_PATH}/NotificationService
-      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/NotificationService.Dockerfile
+      context: ${BACKEND_ABSOLUTE_PATH}/notification-service
+      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/notification-service.Dockerfile
     container_name: notification-service
     ports:
       - "8002:8002"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bank-db?currentSchema=notification_service_schema
       - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
-    depends_on: #conditions for service to start, its a black magic dont touch unless u know what u are doing!
+    depends_on: # Conditions for service to start (black magic, don't touch unless you know what you're doing!!!)
       rabbitmq:
         condition: service_healthy
 
   stock-service:
     build:
-      context: ${BACKEND_ABSOLUTE_PATH}/StockService
-      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/StockService.Dockerfile
+      context: ${BACKEND_ABSOLUTE_PATH}/stock-service
+      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/stock-service.Dockerfile
     container_name: stock-service
     ports:
       - "8001:8001"
@@ -114,8 +114,8 @@ services:
 
   otc-service:
     build:
-      context: ${BACKEND_ABSOLUTE_PATH}/OTCService
-      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/OTCService.Dockerfile
+      context: ${BACKEND_ABSOLUTE_PATH}/otc-service
+      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/otc-service.Dockerfile
     container_name: otc-service
     ports:
       - "8004:8004"
@@ -128,11 +128,11 @@ services:
       rabbitmq:
         condition: service_started
 
-  angular-cli:
+  frontend:
     build:
       context: ${FRONTEND_ABSOLUTE_PATH}/
-      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/Frontend.Dockerfile
-    container_name: angular-cli
+      dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/frontend.Dockerfile
+    container_name: frontend
     ports:
       - "80:80"
     depends_on:
