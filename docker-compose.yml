@@ -49,7 +49,7 @@ services:
 
   bank-service:
     build:
-      context: ${BACKEND_ABSOLUTE_PATH}/bank-service
+      context: ${BACKEND_ABSOLUTE_PATH}/BankService
       dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/bank-service.Dockerfile
     container_name: bank-service
     ports:
@@ -65,7 +65,7 @@ services:
 
   iam-service:
     build:
-      context: ${BACKEND_ABSOLUTE_PATH}/iam-service
+      context: ${BACKEND_ABSOLUTE_PATH}/IAMService
       dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/iam-service.Dockerfile
     container_name: iam-service
     ports:
@@ -81,7 +81,7 @@ services:
 
   notification-service:
     build:
-      context: ${BACKEND_ABSOLUTE_PATH}/notification-service
+      context: ${BACKEND_ABSOLUTE_PATH}/NotificationService
       dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/notification-service.Dockerfile
     container_name: notification-service
     ports:
@@ -95,7 +95,7 @@ services:
 
   stock-service:
     build:
-      context: ${BACKEND_ABSOLUTE_PATH}/stock-service
+      context: ${BACKEND_ABSOLUTE_PATH}/StockService
       dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/stock-service.Dockerfile
     container_name: stock-service
     ports:
@@ -114,7 +114,7 @@ services:
 
   otc-service:
     build:
-      context: ${BACKEND_ABSOLUTE_PATH}/otc-service
+      context: ${BACKEND_ABSOLUTE_PATH}/OTCService
       dockerfile: ${INFRASTRUCTURE_ABSOLUTE_PATH}/images/otc-service.Dockerfile
     container_name: otc-service
     ports:
