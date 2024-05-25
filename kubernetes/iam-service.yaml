@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iam-service
+  namespace: banka-2-dev
+  labels:
+    service: iam-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: iam-service
+  template:
+    metadata:
+      labels:
+        service: iam-service
+    spec:
+      containers:
+        - image: harbor.k8s.elab.rs/banka-2/iam-service:latest
+          imagePullPolicy: Always
+          name: iam-service
+          env:
+            - name: spring.datasource.url
+              value: jdbc:postgresql://banka-2-ha:5432/bank_db?currentSchema=iam_service_schema
+            - name: spring.datasource.username
+              valueFrom:
+                secretKeyRef:
+                  name: banka-2-pguser-admin
+                  key: user
+            - name: spring.datasource.password
+              valueFrom:
+                secretKeyRef:
+                  name: banka-2-pguser-admin
+                  key: password
+            - name: spring.jpa.hibernate.ddl-auto
+              value: update
+            - name: SPRING_PROFILES_ACTIVE
+              value: dev
+#            - name: MY_EMAIL_1
+#              value: lukapavlovic032@gmail.com
+#            - name: MY_EMAIL_2
+#              value: lukapavlovic0321@gmail.com
+#            - name: MY_EMAIL_3
+#              value: lukapavlovic03211@gmail.com
+#            - name: MY_EMAIL_4
+#              value: lukapavlovic032111@gmail.com
+
+
+          resources:
+            requests:
+              cpu: 1
+              memory: 1Gi
+            limits:
+              cpu: 2
+              memory: 2Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iam-service
+  namespace: banka-2-dev
+spec:
+  selector:
+    service: iam-service
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
