@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bank-service
+  namespace: banka-2-dev
+  labels:
+    service: bank-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: bank-service
+  template:
+    metadata:
+      labels:
+        service: bank-service
+    spec:
+      containers:
+        - image: harbor.k8s.elab.rs/banka-2/bank-service:latest
+          imagePullPolicy: Always
+          name: bank-service
+          env:
+            - name: spring.datasource.url
+              value: jdbc:postgresql://banka-2-ha:5432/bank_db?currentSchema=bank_service_schema
+            - name: spring.datasource.username
+              valueFrom:
+                secretKeyRef:
+                  name: banka-2-pguser-admin
+                  key: user
+            - name: spring.datasource.password
+              valueFrom:
+                secretKeyRef:
+                  name: banka-2-pguser-admin
+                  key: password
+            - name: spring.jpa.hibernate.ddl-auto
+              value: update
+            - name: SPRING_PROFILES_ACTIVE
+              value: dev
+#            - name: iam.service.url
+#              value: http://iam-service:8000/api
+#            - name: stock.service.url
+#              value: http://stock-service:8001/api
+
+          resources:
+            requests:
+              cpu: 1
+              memory: 1Gi
+            limits:
+              cpu: 2
+              memory: 2Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bank-service
+  namespace: banka-2-dev
+spec:
+  selector:
+    service: bank-service
+  ports:
+    - protocol: TCP
+      port: 8003
+      targetPort: 8003

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock-service
+  namespace: banka-2-dev
+  labels:
+    service: stock-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: stock-service
+  template:
+    metadata:
+      labels:
+        service: stock-service
+    spec:
+      containers:
+        - image: harbor.k8s.elab.rs/banka-2/stock-service:latest
+          imagePullPolicy: Always
+          name: stock-service
+          env:
+            - name: spring.datasource.url
+              value: jdbc:postgresql://banka-2-ha:5432/bank_db?currentSchema=stock_service_schema
+            - name: spring.datasource.username
+              valueFrom:
+                secretKeyRef:
+                  name: banka-2-pguser-admin
+                  key: user
+            - name: spring.datasource.password
+              valueFrom:
+                secretKeyRef:
+                  name: banka-2-pguser-admin
+                  key: password
+            - name: spring.jpa.hibernate.ddl-auto
+              value: update
+            - name: SPRING_PROFILES_ACTIVE
+              value: dev
+          resources:
+            requests:
+              cpu: 1
+              memory: 1Gi
+            limits:
+              cpu: 2
+              memory: 2Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stock-service
+  namespace: banka-2-dev
+spec:
+  selector:
+    service: stock-service
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
