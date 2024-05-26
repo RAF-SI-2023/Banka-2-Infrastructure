@@ -36,6 +36,13 @@ spec:
               value: update
             - name: SPRING_PROFILES_ACTIVE
               value: dev
+            - name: spring.rabbitmq.username
+              value: user
+            - name: spring.rabbitmq.password
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-password
 #            - name: bank.service.url
 #              value: http://bank-service:8003/api
 #            - name: MY_EMAIL_1
