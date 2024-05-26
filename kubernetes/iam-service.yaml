@@ -32,6 +32,13 @@ spec:
                 secretKeyRef:
                   name: banka-2-pguser-admin
                   key: password
+            - name: spring.rabbitmq.username
+              value: user
+            - name: spring.rabbitmq.password
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-password
             - name: spring.jpa.hibernate.ddl-auto
               value: update
             - name: SPRING_PROFILES_ACTIVE
