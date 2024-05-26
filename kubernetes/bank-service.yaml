@@ -43,7 +43,6 @@ spec:
               value: update
             - name: SPRING_PROFILES_ACTIVE
               value: dev
-
 #            - name: iam.service.url
 #              value: http://iam-service:8000/api
 #            - name: stock.service.url
