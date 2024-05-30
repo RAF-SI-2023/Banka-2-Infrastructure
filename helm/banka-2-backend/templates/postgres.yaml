@@ -1,0 +1,146 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-init
+  namespace: {{ .Release.Namespace }}
+data:
+  init.sql: |
+    \c bank_db
+    
+    CREATE SCHEMA IF NOT EXISTS iam_service_schema AUTHORIZATION admin;
+    CREATE SCHEMA IF NOT EXISTS otc_service_schema AUTHORIZATION admin;
+    CREATE SCHEMA IF NOT EXISTS bank_service_schema AUTHORIZATION admin;
+    CREATE SCHEMA IF NOT EXISTS stock_service_schema AUTHORIZATION admin;
+    CREATE SCHEMA IF NOT EXISTS notification_service_schema AUTHORIZATION admin;
+    
+    SET search_path TO iam_service_schema;
+    CREATE TABLE IF NOT EXISTS shedlock (
+        name VARCHAR(64) NOT NULL,
+        lock_until TIMESTAMP NOT NULL,
+        locked_at TIMESTAMP NOT NULL,
+        locked_by VARCHAR(255) NOT NULL,
+        PRIMARY KEY (name)
+    );
+
+    CREATE TABLE IF NOT EXISTS roles (
+        id BIGSERIAL PRIMARY KEY,
+        role_type VARCHAR(255) UNIQUE NOT NULL
+    );
+    INSERT INTO roles (role_type) VALUES
+    ('ADMIN'),
+    ('EMPLOYEE'),
+    ('SUPERVISOR'),
+    ('AGENT'),
+    ('USER')
+    ON CONFLICT (role_type) DO NOTHING;
+
+    CREATE TABLE IF NOT EXISTS permissions (
+         id BIGSERIAL PRIMARY KEY,
+         permission_type VARCHAR(255) UNIQUE NOT NULL
+    );
+    INSERT INTO permissions (permission_type) VALUES
+    ('PERMISSION_1'),
+    ('PERMISSION_2'),
+    ('PERMISSION_3'),
+    ('PERMISSION_4'),
+    ('PERMISSION_5')
+    ON CONFLICT (permission_type) DO NOTHING;
+
+
+    SET search_path TO bank_service_schema;
+    CREATE TABLE IF NOT EXISTS shedlock (
+        name VARCHAR(64) NOT NULL,
+        lock_until TIMESTAMP NOT NULL,
+        locked_at TIMESTAMP NOT NULL,
+        locked_by VARCHAR(255) NOT NULL,
+        PRIMARY KEY (name)
+    );
+
+
+    SET search_path TO notification_service_schema;
+    CREATE TABLE IF NOT EXISTS shedlock (
+        name VARCHAR(64) NOT NULL,
+        lock_until TIMESTAMP NOT NULL,
+        locked_at TIMESTAMP NOT NULL,
+        locked_by VARCHAR(255) NOT NULL,
+        PRIMARY KEY (name)
+    );
+
+
+    SET search_path TO stock_service_schema;
+    CREATE TABLE IF NOT EXISTS shedlock (
+        name VARCHAR(64) NOT NULL,
+        lock_until TIMESTAMP NOT NULL,
+        locked_at TIMESTAMP NOT NULL,
+        locked_by VARCHAR(255) NOT NULL,
+        PRIMARY KEY (name)
+    );
+
+
+    SET search_path TO otc_service_schema;
+    CREATE TABLE IF NOT EXISTS shedlock (
+        name VARCHAR(64) NOT NULL,
+        lock_until TIMESTAMP NOT NULL,
+        locked_at TIMESTAMP NOT NULL,
+        locked_by VARCHAR(255) NOT NULL,
+        PRIMARY KEY (name)
+    );
+
+---
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+metadata:
+  name: banka-2
+  namespace: {{ .Release.Namespace }}
+spec:
+  image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-16.2-0
+  postgresVersion: 16
+  databaseInitSQL:
+    name: database-init
+    key: init.sql
+  instances:
+    - name: instance1
+      replicas: 3
+      dataVolumeClaimSpec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 10Gi
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    postgres-operator.crunchydata.com/cluster: banka-2
+                    postgres-operator.crunchydata.com/instance-set: instance1
+  backups:
+    pgbackrest:
+      image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest:ubi8-2.49-0
+      repos:
+        - name: repo1
+          volume:
+            volumeClaimSpec:
+              accessModes:
+                - "ReadWriteOnce"
+              resources:
+                requests:
+                  storage: 10Gi
+  proxy:
+    pgBouncer:
+      replicas: 2
+      image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbouncer:ubi8-1.21-3
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+  users:
+    - name: admin
+      password:
+        type: "AlphaNumeric"
+      databases:
+        - bank_db
+      options: "SUPERUSER"

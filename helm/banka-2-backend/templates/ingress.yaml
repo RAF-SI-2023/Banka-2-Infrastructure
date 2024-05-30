@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: banka-2-ingress-api
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ .Values.host }}
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: "/iam-service(/|$)(.*)"
+            backend:
+              service:
+                name: iam-service
+                port:
+                  number: 8000
+          - pathType: ImplementationSpecific
+            path: "/notification-service(/|$)(.*)"
+            backend:
+              service:
+                name: notification-service
+                port:
+                  number: 8002
+          - pathType: ImplementationSpecific
+            path: "/bank-service(/|$)(.*)"
+            backend:
+              service:
+                name: bank-service
+                port:
+                  number: 8003
+          - pathType: ImplementationSpecific
+            path: "/stock-service(/|$)(.*)"
+            backend:
+              service:
+                name: stock-service
+                port:
+                  number: 8001
+          - pathType: ImplementationSpecific
+            path: "/otc-service(/|$)(.*)"
+            backend:
+              service:
+                name: otc-service
+                port:
+                  number: 8004
