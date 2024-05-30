@@ -43,14 +43,6 @@ spec:
                 secretKeyRef:
                   name: rabbitmq
                   key: rabbitmq-password
-#            - name: bank.service.url
-#              value: http://bank-service:8003/api
-#            - name: MY_EMAIL_1
-#              value: default1@gmail.com
-#            - name: MY_EMAIL_2
-#              value: default2@gmail.com
-#            - name: MY_EMAIL_3
-#              value: default3@gmail.com
 
           resources:
             requests:
