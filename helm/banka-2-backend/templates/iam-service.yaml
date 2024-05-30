@@ -45,15 +45,6 @@ spec:
               value: update
             - name: SPRING_PROFILES_ACTIVE
               value: dev
-#            - name: MY_EMAIL_1
-#              value: lukapavlovic032@gmail.com
-#            - name: MY_EMAIL_2
-#              value: lukapavlovic0321@gmail.com
-#            - name: MY_EMAIL_3
-#              value: lukapavlovic03211@gmail.com
-#            - name: MY_EMAIL_4
-#              value: lukapavlovic032111@gmail.com
-
 
           resources:
             requests:
