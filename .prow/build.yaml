@@ -1,0 +1,30 @@
+postsubmits:
+  - name: post-banka-2-infrastructure-build-helm
+    run_if_changed: 'helm'
+    decorate: true
+    max_concurrency: 1
+    labels:
+      preset-harbor-robot-push: "true"
+    spec:
+      containers:
+        - image: harbor.k8s.elab.rs/base-images/base:java-21-node-18-docker
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+
+              TEAM_NAME="banka-2"
+              
+              helm registry login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD harbor.k8s.elab.rs
+
+              cd ./helm
+
+              helm package "$TEAM_NAME-backend"
+              helm package "$TEAM_NAME-frontend"
+
+              helm push "$TEAM_NAME-backend-1.0.0.tgz" "oci://harbor.k8s.elab.rs/$TEAM_NAME/$TEAM_NAME-backend"
+              helm push "$TEAM_NAME-frontend-1.0.0.tgz" "oci://harbor.k8s.elab.rs/$TEAM_NAME/$TEAM_NAME-frontend"
+          securityContext:
+            privileged: true
+          imagePullPolicy: Always
