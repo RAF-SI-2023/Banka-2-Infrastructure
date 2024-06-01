@@ -1,6 +1,7 @@
 postsubmits:
   - name: post-banka-2-infrastructure-build-helm
-    run_if_changed: 'helm'
+    run_if_changed: '(helm/|.prow/)'
+
     decorate: true
     max_concurrency: 1
     labels:
