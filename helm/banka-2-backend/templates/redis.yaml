@@ -20,11 +20,11 @@ spec:
           name: redis
           resources:
             requests:
-              cpu: 1
+              cpu: 256m
               memory: 512Mi
             limits:
-              cpu: 1
-              memory: 1Gi
+              cpu: 2
+              memory: 2Gi
 ---
 apiVersion: v1
 kind: Service
