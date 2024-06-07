@@ -6,6 +6,9 @@ FROM node:latest as build
 # Set the working directory
 WORKDIR /usr/src/app
 
+# Define the environment argument
+ARG ENV=development
+
 # Copy the package.json and package-lock.json
 COPY package*.json ./
 
@@ -15,8 +18,14 @@ RUN npm install
 # Copy the source code to the working directory
 COPY . .
 
-# Generate the production build of the application
-RUN npm run build --prod
+# Conditional build based on the environment
+RUN if [ "$ENV" = "production" ]; then \
+        npm run build:prod; \
+    elif [ "$ENV" = "development" ]; then \
+        npm run build:dev; \
+    else \
+        npm run build; \
+    fi
 
 # Stage 2: Serve app with nginx server
 
