@@ -1,6 +1,6 @@
 apiVersion: v2
 name: banka-2-frontend
-description: Frontend aplikacije za tim Banka 2
+description: Frontend aplikacije za tim Banka-2
 type: application
 version: 1.0.0
 appVersion: "1.0.0"
